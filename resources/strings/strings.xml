@@ -1,0 +1,36 @@
+<strings>
+    <string id="AppName">${appName}</string>
+    <string id="AppVersion">0.9</string>
+    
+    <string id="currentSpeed">Current speed</string>
+    <string id="currentPace">Current pace</string>
+    <string id="currentCadence">Current cadence</string>
+    <string id="currentHeartRate">Current heart rate</string>
+    <string id="currentPower">Current power</string>
+    <string id="currentLocationAccuracy">Current location accuracy</string>
+    <string id="currentTime">Current time</string>
+    
+    <string id="averageSpeed">Average speed</string>
+    <string id="averagePace">Average pace</string>
+    <string id="averageCadence">Average cadence</string>
+    <string id="averageHeartRate">Average heart rate</string>
+    <string id="averagePower">Average power</string>
+    
+    <string id="maxSpeed">Maximum speed</string>
+    <string id="maxPace">Maximum pace</string>
+    <string id="maxCadence">Maximum cadence</string>
+    <string id="maxHeartRate">Maximum heart rate</string>
+    <string id="maxPower">Maximum power</string>
+    
+    <string id="lapSpeed">Current lap average speed</string>
+    <string id="lapPace">Current lap average pace</string>
+    <string id="lapTime">Current lap elapsed time</string>
+    <string id="lapDistance">Current lap elapsed distance</string>
+
+    <string id="elapsedTime">Elapsed time</string>
+    <string id="elapsedDistance">Elapsed distance</string>
+    <string id="totalAscent">Total ascent</string>
+    <string id="trainingEffect">Training effect</string>
+	<string id="calories">Calories</string>
+
+</strings>
