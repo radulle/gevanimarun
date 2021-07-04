@@ -1,5 +1,5 @@
 <strings>
-    <string id="AppName">${appName}</string>
+    <string id="AppName">Gevanima run</string>
     <string id="AppVersion">0.9</string>
     
     <string id="currentSpeed">Current speed</string>

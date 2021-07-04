@@ -2,6 +2,31 @@ using Toybox.WatchUi as Ui;
 using Toybox.Graphics as Gfx;
 
 class GevanimaRunView extends Ui.DataField {
+    hidden var timerTime = 0, currentSpeed = 0, currentCadence = 0, currentHeartRate = 0, currentPower = 0, currentLocationAccuracy = 0, currentTimeHour = System.getClockTime().hour, currentTimeMinute = System.getClockTime().min;  
+    hidden var averageSpeed = 0, averageCadence = 0, averageHeartRate = 0, averagePower = 0;
+    hidden var maxSpeed = 0, maxCadence = 0, maxHeartRate = 0, maxPower = 0;
+    hidden var onTimerLapTime = 0, onTimerLapDistance = 0, elapsedTime = 0, elapsedDistance = 0, totalAscent = 0, totalDescent = 0, trainingEffect = 0, calories = 0;
+    hidden var lapSpeed = 0, lapTime = 0, lapDistance = 0, battery = 0;
+    hidden var unitPace = 1000.0, unitDist = 1000.0;
+  	
+    // true     => Force the backlight to stay on permanently
+    // false    => Use the defined backlight timeout as normal  
+    hidden var uBacklight = false;
+    hidden var mTimerRunning = false;
+    hidden var mStartStopPushed = 0;    // Timer value when the start/stop button was last pushed   
+    
+    hidden var xCenter = 0, yCenter = 0, minRad = 0, hourRad = 0, minAngle = 0, hourAngle = 0; 
+    hidden var twoPI = Math.PI *2;
+    
+    hidden var currentSport = UserProfile.getCurrentSport();
+    hidden var heartRateZones = UserProfile.getHeartRateZones(currentSport); //min zone 1, max zone 1, max zone 2, max zone 3, max zone 4, max zone 5
+	hidden var cadenceZones = [100, 153, 164, 174, 183, 200]; 
+    hidden var heartRateZonesColors = [Gfx.COLOR_LT_GRAY, Gfx.COLOR_BLUE, Gfx.COLOR_GREEN, Gfx.COLOR_ORANGE, Gfx.COLOR_RED];
+    hidden var cadenceZonesColors = [Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Gfx.COLOR_GREEN, Gfx.COLOR_BLUE, Gfx.COLOR_PURPLE];
+    hidden var locationAccuracyColors = [Gfx.COLOR_PURPLE, Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Gfx.COLOR_BLUE, Gfx.COLOR_GREEN];
+
+	hidden var backgroundColor, textColor, headerColor;
+	hidden var center = Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER;
 
     // Set your layout here. Anytime the size of obscurity of
     // the draw context is changed this will be called.
@@ -29,13 +54,12 @@ class GevanimaRunView extends Ui.DataField {
     // Calculate a value and save it locally in this method.
     // Note that compute() and onUpdate() are asynchronous, and there is no
     // guarantee that compute() will be called before onUpdate().
-    function compute(info) {
-        
+    function compute(info) {   
         currentSpeed = info.currentSpeed != null ? info.currentSpeed : 0.0f;        
         currentCadence = info.currentCadence != null ? info.currentCadence : 0.0f;
         currentHeartRate = info.currentHeartRate != null ? info.currentHeartRate : 0.0f;
 		currentPower = info.currentPower != null ? info.currentPower : 0.0f;
-		currentLocationAccuracy = info.currentLocationAccuracy != null ? info.currentLocationAccuracy : 0.0f;
+		currentLocationAccuracy = info.currentLocationAccuracy != null ? info.currentLocationAccuracy : 0d;
 		timerTime = info.timerTime != null ? info.timerTime : 0.0f;   
 
 		currentTimeHour = System.getClockTime().hour;
@@ -63,8 +87,6 @@ class GevanimaRunView extends Ui.DataField {
     	lapTime = timerTime - onTimerLapTime;
     	lapDistance = elapsedDistance - onTimerLapDistance;    	
     	lapSpeed = lapTime != 0 ? lapDistance / lapTime * 1000 : lapSpeed;
-    	//System.println("eD:" + elapsedDistance + " tT:" + timerTime + " cS:" + currentSpeed + " cP: " + frmtPace(currentSpeed) + " eT: " + elapsedTime + " onLapT: " + onTimerLapTime + " lT: " + lapTime + " lD: " + lapDistance + " lS: " + lapSpeed + " lP: " + frmtPace(lapSpeed));
-    	//stepLength = AntPlus.RunningDynamicsData.stepLength != 0 ? AntPlus.RunningDynamicsData.stepLength : 0.0f;
     	
         // If enabled, switch the backlight on in order to make it stay on
         if (uBacklight) {
@@ -101,31 +123,6 @@ class GevanimaRunView extends Ui.DataField {
       	onTimerLapTime = timerTime; 
       	onTimerLapDistance = elapsedDistance;
     }
-    
-    hidden var timerTime = 0, currentSpeed = 0, currentCadence = 0, currentHeartRate = 0, currentPower = 0, currentLocationAccuracy = 0, currentTimeHour = System.getClockTime().hour, currentTimeMinute = System.getClockTime().min;  
-    hidden var averageSpeed = 0, averageCadence = 0, averageHeartRate = 0, averagePower = 0;
-    hidden var maxSpeed = 0, maxCadence = 0, maxHeartRate = 0, maxPower = 0;
-    hidden var onTimerLapTime = 0, onTimerLapDistance = 0, elapsedTime = 0, elapsedDistance = 0, totalAscent = 0, totalDescent = 0, trainingEffect = 0, calories = 0;
-    hidden var lapSpeed = 0, lapTime = 0, lapDistance = 0, battery = 0;
-    hidden var unitPace = 1000.0, unitDist = 1000.0;
-  	
-    // true     => Force the backlight to stay on permanently
-    // false    => Use the defined backlight timeout as normal  
-    hidden var uBacklight = false;
-    hidden var mTimerRunning = false;
-    hidden var mStartStopPushed = 0;    // Timer value when the start/stop button was last pushed   
-    
-    hidden var xCenter = 0, yCenter = 0, minRad = 0, hourRad = 0, minAngle = 0, hourAngle = 0; 
-    hidden var twoPI = Math.PI *2;
-    
-    hidden var currentSport = UserProfile.getCurrentSport();
-    hidden var heartRateZones = UserProfile.getHeartRateZones(currentSport); //min zone 1, max zone 1, max zone 2, max zone 3, max zone 4, max zone 5
-	hidden var cadenceZones = [100, 153, 164, 174, 183, 200]; 
-    hidden var heartRateZonesColors = [Gfx.COLOR_LT_GRAY, Gfx.COLOR_BLUE, Graphics.COLOR_GREEN, Gfx.COLOR_ORANGE, Graphics.COLOR_RED];
-    hidden var cadenceZonesColors = [Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Graphics.COLOR_GREEN, Gfx.COLOR_BLUE, Graphics.COLOR_PURPLE];
-    
-	hidden var backgroundColor, textColor, headerColor;
-	hidden var center = Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER;
 	
     function setColors(dc) {
         backgroundColor = (self has :getBackgroundColor) ? getBackgroundColor() : Gfx.COLOR_WHITE;
@@ -183,23 +180,29 @@ class GevanimaRunView extends Ui.DataField {
 		dc.drawText(xCenter+35, yCenter-70, Gfx.FONT_MEDIUM, totalAscent.format("%0d"), center);
         dc.drawText(xCenter+25, yCenter+70, Gfx.FONT_MEDIUM, frmtTime(lapTime), center);        
 		dc.drawText(xCenter-25, yCenter-70, Gfx.FONT_MEDIUM, frmtTime(elapsedTime), center);
-        dc.drawText(xCenter-35, yCenter+70, Gfx.FONT_MEDIUM, trainingEffect.format("%1.1f"), center);
+        dc.drawText(xCenter-35, yCenter+70, Gfx.FONT_MEDIUM, battery.format("%0d"), center);
 		
 		// Headers
 		dc.setColor(headerColor, Gfx.COLOR_TRANSPARENT);
 
-		dc.drawText(xCenter, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "cP", center);
-		dc.drawText(xCenter+30, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "tA", center);
-		dc.drawText(xCenter-30, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "eT", center);
-		dc.drawText(xCenter+60, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "cC", center);
-		dc.drawText(xCenter-60, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "cD", center);
+		dc.drawText(xCenter+30, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "ASC", center);
+		dc.drawText(xCenter-30, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "CURRENT", center);
+		dc.drawText(xCenter+60, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "CD", center);
 
-		dc.drawText(xCenter, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "lP", center);
-		dc.drawText(xCenter+30, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "lT", center);
-		dc.drawText(xCenter-30, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "eF", center);
-		dc.drawText(xCenter+60, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "lD", center);
-		dc.drawText(xCenter-60, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "cH", center);
+		dc.drawText(xCenter+30, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "LAP", center);
+		dc.drawText(xCenter-30, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "BAT", center);
+		dc.drawText(xCenter-60, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "HR", center);
+
+        drawRectangles(dc, currentLocationAccuracy, xCenter, yCenter+84, locationAccuracyColors);
 	}
+
+    function drawRectangles(dc, amt, posX, posY, pallete){
+        var x = posX - (amt * 7 + (amt - 1) * 5) / 2;
+        dc.setColor(pallete[amt], pallete[amt]);
+        for (var i = 0; i < amt; i++) {
+            dc.fillRectangle(x + i * 12, posY, 7, 7);
+        }
+    }
 	
 	function drawZoneBarsArcs(dc, radius, centerX, centerY, measurement, zones, angStart, angDiff, cirColor){
 		var zone = 0;
@@ -248,12 +251,13 @@ class GevanimaRunView extends Ui.DataField {
         }
     }
 
+    // if less than hour n:ss, if more h:nn.S (S = s/10)
     function frmtTime(msec) {
         var s = msec / 1000;
         if (s<3600){
         	return (s/60).format("%d") + ":" + (s%60).format("%02d");
         } else {
-        	return (s/3600).format("%d") + ":" + ((s/60)%60).format("%02d") + "." + (s%60/6).format("%1d");
+        	return (s/3600).format("%d") + ":" + ((s/60)%60).format("%02d") + "." + (s%60/10).format("%1d");
         }
     }
 

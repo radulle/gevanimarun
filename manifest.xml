@@ -27,7 +27,6 @@
             <iq:product id="fenix6s"/>
             <iq:product id="fenix6spro"/>
             <iq:product id="fenix6xpro"/>
-            <iq:product id="fenixchronos"/>
         </iq:products>
         <!--
             Use "Connect IQ: Edit Permissions" from the Visual Studio Code command
