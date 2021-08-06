@@ -7,7 +7,7 @@ class GevanimaRunView extends Ui.DataField {
     hidden var maxSpeed = 0, maxCadence = 0, maxHeartRate = 0, maxPower = 0;
     hidden var onTimerLapTime = 0, onTimerLapDistance = 0, elapsedTime = 0, elapsedDistance = 0, totalAscent = 0, totalDescent = 0, trainingEffect = 0, calories = 0;
     hidden var lapSpeed = 0, lapTime = 0, lapDistance = 0, battery = 0;
-    hidden var unitPace = 1000.0, unitDist = 1000.0;
+    hidden var unitPace = 1000.0, unitDist = 1000.0, unitElev = 1;
   	
     // true     => Force the backlight to stay on permanently
     // false    => Use the defined backlight timeout as normal  
@@ -16,7 +16,7 @@ class GevanimaRunView extends Ui.DataField {
     hidden var mStartStopPushed = 0;    // Timer value when the start/stop button was last pushed   
     
     hidden var xCenter = 0, yCenter = 0, minRad = 0, hourRad = 0, minAngle = 0, hourAngle = 0; 
-    hidden var twoPI = Math.PI *2;
+    hidden var twoPI = Math.PI * 2;
     
     hidden var currentSport = UserProfile.getCurrentSport();
     hidden var heartRateZones = UserProfile.getHeartRateZones(currentSport); //min zone 1, max zone 1, max zone 2, max zone 3, max zone 4, max zone 5
@@ -31,6 +31,9 @@ class GevanimaRunView extends Ui.DataField {
     // Set your layout here. Anytime the size of obscurity of
     // the draw context is changed this will be called.
     function onLayout(dc) {
+        unitPace = System.getDeviceSettings().paceUnits == 1 ? 1000.0 / 1.6093 : 1000.0; 
+        unitDist = System.getDeviceSettings().distanceUnits == 1 ? 1000.0 / 1.6093 : 1000.0; 
+        unitElev = System.getDeviceSettings().elevationUnits == 1 ? 3.281 : 1;
     	xCenter = dc.getWidth() / 2;
         yCenter = dc.getHeight() / 2;
         // Analog clock
@@ -54,18 +57,18 @@ class GevanimaRunView extends Ui.DataField {
     // Calculate a value and save it locally in this method.
     // Note that compute() and onUpdate() are asynchronous, and there is no
     // guarantee that compute() will be called before onUpdate().
-    function compute(info) {   
+    function compute(info) { 
         currentSpeed = info.currentSpeed != null ? info.currentSpeed : 0.0f;        
         currentCadence = info.currentCadence != null ? info.currentCadence : 0.0f;
         currentHeartRate = info.currentHeartRate != null ? info.currentHeartRate : 0.0f;
 		currentPower = info.currentPower != null ? info.currentPower : 0.0f;
-		currentLocationAccuracy = info.currentLocationAccuracy != null ? info.currentLocationAccuracy : 0d;
+		currentLocationAccuracy = info.currentLocationAccuracy != null ? info.currentLocationAccuracy : 0;
 		timerTime = info.timerTime != null ? info.timerTime : 0.0f;   
 
 		currentTimeHour = System.getClockTime().hour;
 		currentTimeMinute = System.getClockTime().min;
 
-    	battery =  System.getSystemStats().battery != null ?  System.getSystemStats().battery : 0.0f;
+    	battery =  System.getSystemStats().battery != null ?  System.getSystemStats().battery : 0d;
 
         averageSpeed = info.averageSpeed != null ? info.averageSpeed : 0.0f;
         averageCadence = info.averageCadence != null ? info.averageCadence : 0.0f;
@@ -79,7 +82,7 @@ class GevanimaRunView extends Ui.DataField {
                  
         elapsedTime = info.elapsedTime != null ? info.elapsedTime : 0.0f;
         elapsedDistance = info.elapsedDistance != null ? info.elapsedDistance : 0.0f;
-        totalAscent = info.totalAscent != null ? info.totalAscent : 0.0f;
+        totalAscent = info.totalAscent != null ? info.totalAscent * unitElev : 0.0f;
         totalDescent = info.totalDescent != null ? info.totalDescent : 0.0f;
     	trainingEffect = info.trainingEffect != null ? info.trainingEffect : 0.0f;
     	calories = info.calories != null ? info.calories : 0.0f;
@@ -188,7 +191,7 @@ class GevanimaRunView extends Ui.DataField {
 		dc.drawText(xCenter+30, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "ASC", center);
 		dc.drawText(xCenter-30, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "CURRENT", center);
 		dc.drawText(xCenter+60, yCenter-54, Gfx.FONT_SYSTEM_XTINY , "CD", center);
-
+  
 		dc.drawText(xCenter+30, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "LAP", center);
 		dc.drawText(xCenter-30, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "BAT", center);
 		dc.drawText(xCenter-60, yCenter+54, Gfx.FONT_SYSTEM_XTINY , "HR", center);
